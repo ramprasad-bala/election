@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.election.bean.VoterBean;
 import com.app.election.entity.Voter;
 import com.app.election.exception.VoterNotFoundException;
 import com.app.election.repository.VotersRepo;
@@ -29,29 +30,39 @@ public class VotersRest {
 		return votersRepository.findAll();
 	}
 
-	@PostMapping("/voters")
-	public Voter createVoter(@Valid @RequestBody Voter voter) {
-		return votersRepository.save(voter);
+	@PostMapping("/voter")
+	public VoterBean createVoter(@Valid @RequestBody VoterBean voterBean) {
+		Voter voter = new Voter();
+		voter.setName(voterBean.getName());
+		voter.setFathersName(voterBean.getFathersName());
+		voter.setDateofBirth(voterBean.getDateofBirth());
+		voter.setGender(voterBean.getGender());
+		votersRepository.save(voter);
+		voterBean.setId(voter.getId());
+
+		return voterBean;
 	}
 
-	@GetMapping("/voters/{id}")
+	@GetMapping("/voter/{id}")
 	public Voter getVoterById(@PathVariable(value = "id") Long votersId) throws VoterNotFoundException {
 		return votersRepository.findById(votersId).orElseThrow(() -> new VoterNotFoundException(votersId));
 	}
 
-	@PutMapping("/voters/{id}")
-	public Voter updateVoter(@PathVariable(value = "id") Long votersId, @Valid @RequestBody Voter votersDetails)
+	@PutMapping("/voter/{id}")
+	public VoterBean updateVoter(@PathVariable(value = "id") Long votersId, @Valid @RequestBody VoterBean votersDetails)
 			throws VoterNotFoundException {
 		Voter voter = votersRepository.findById(votersId).orElseThrow(() -> new VoterNotFoundException(votersId));
 		voter.setName(votersDetails.getName());
 		voter.setFathersName(votersDetails.getFathersName());
 		voter.setGender(votersDetails.getGender());
 		voter.setDateofBirth(votersDetails.getDateofBirth());
-		Voter updatedVoters = votersRepository.save(voter);
-		return updatedVoters;
+		votersRepository.save(voter);
+		votersDetails.setId(voter.getId());
+
+		return votersDetails;
 	}
 
-	@DeleteMapping("/voters/{id}")
+	@DeleteMapping("/voter/{id}")
 	public ResponseEntity<?> deleteVoter(@PathVariable(value = "id") Long votersId) throws VoterNotFoundException {
 		Voter voter = votersRepository.findById(votersId).orElseThrow(() -> new VoterNotFoundException(votersId));
 

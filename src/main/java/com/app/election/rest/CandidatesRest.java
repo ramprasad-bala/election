@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.app.election.bean.CandidateBean;
+import com.app.election.bean.CandidateCreateBean;
 import com.app.election.entity.Candidate;
 import com.app.election.exception.CandidateNotFoundException;
 import com.app.election.repository.CandidatesRepo;
@@ -41,35 +43,24 @@ public class CandidatesRest {
 		return mapping;
 	}
 
-	@GetMapping("/candidate")
-	public Candidate getAllCandidate() {
-		Candidate candidate = new Candidate();
-		candidate.getId();
-		candidate.getName();
-		candidate.getParty();
-		candidate.getPartySymbol();
-		candidate.getTotalProperties();
-		return candidate;
-	}
-
 	@PostMapping("/candidate")
-	public MappingJacksonValue createCandidate(@Valid @RequestBody Candidate candidate) {
+	public CandidateBean createCandidate(@Valid @RequestBody CandidateCreateBean candidateCreateBean) {
 		Candidate newcandidate = new Candidate();
 
-		newcandidate.setName(candidate.getName());
-		newcandidate.setParty(candidate.getParty());
-		newcandidate.setCriminalCase(candidate.getCriminalCase());
-		newcandidate.setPartySymbol(candidate.getPartySymbol());
-		newcandidate.setTotalProperties(candidate.getTotalProperties());
+		newcandidate.setName(candidateCreateBean.getName());
+		newcandidate.setParty(candidateCreateBean.getParty());
+		newcandidate.setCriminalCase(candidateCreateBean.getCriminalCase());
+		newcandidate.setPartySymbol(candidateCreateBean.getPartySymbol());
+		newcandidate.setTotalProperties(candidateCreateBean.getTotalProperties());
 		Candidate updatedVoters = candidatesRepository.save(newcandidate);
-		SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("id", "name", "party",
-				"partysymbol", "totalProperties", "criminalCase", "approval");
-
-		FilterProvider filters = new SimpleFilterProvider().addFilter("candidatefilter", filter);
-
-		MappingJacksonValue mapping = new MappingJacksonValue(updatedVoters);
-		mapping.setFilters(filters);
-		return mapping;
+		CandidateBean candidateBean = new CandidateBean();
+		candidateBean.setId(updatedVoters.getId());
+		candidateBean.setName(updatedVoters.getName());
+		candidateBean.setParty(updatedVoters.getParty());
+		candidateBean.setCriminalCase(updatedVoters.getCriminalCase());
+		candidateBean.setPartySymbol(updatedVoters.getPartySymbol());
+		candidateBean.setTotalProperties(updatedVoters.getPartySymbol());
+		return candidateBean;
 	}
 
 	@GetMapping("/candidate/{id}")
@@ -88,8 +79,8 @@ public class CandidatesRest {
 	}
 
 	@PutMapping("/candidate/{id}")
-	public MappingJacksonValue updateCandidate(@PathVariable(value = "id") Long candidatesid,
-			@Valid @RequestBody Candidate candidateDetails) throws CandidateNotFoundException {
+	public CandidateBean updateCandidate(@PathVariable(value = "id") Long candidatesid,
+			@Valid @RequestBody CandidateCreateBean candidateDetails) throws CandidateNotFoundException {
 		Candidate candidate = candidatesRepository.findById(candidatesid)
 				.orElseThrow(() -> new CandidateNotFoundException(candidatesid));
 		candidate.setName(candidateDetails.getName());
@@ -98,14 +89,15 @@ public class CandidatesRest {
 		candidate.setCriminalCase(candidateDetails.getCriminalCase());
 		candidate.setTotalProperties(candidateDetails.getTotalProperties());
 		Candidate updatedVoters = candidatesRepository.save(candidate);
-		SimpleBeanPropertyFilter filter = SimpleBeanPropertyFilter.filterOutAllExcept("id", "name", "party",
-				"partysymbol", "totalProperties", "criminalCase", "approval");
+		CandidateBean candidateBean = new CandidateBean();
+		candidateBean.setId(candidate.getId());
+		candidateBean.setName(candidate.getName());
+		candidateBean.setParty(candidate.getParty());
+		candidateBean.setCriminalCase(candidate.getCriminalCase());
+		candidateBean.setPartySymbol(candidate.getPartySymbol());
+		candidateBean.setTotalProperties(candidate.getPartySymbol());
 
-		FilterProvider filters = new SimpleFilterProvider().addFilter("candidatefilter", filter);
-
-		MappingJacksonValue mapping = new MappingJacksonValue(updatedVoters);
-		mapping.setFilters(filters);
-		return mapping;
+		return candidateBean;
 
 	}
 
